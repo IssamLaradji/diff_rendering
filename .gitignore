@@ -2,7 +2,6 @@ __pycache__
 *.pyc
 *.pt
 *.out
-*.png
 __pycache__/
 .vscode/
 *.ckpt
@@ -12,3 +11,4 @@ results/*.ipynb*
 src/datasets/synbols
 usr_configs.py
 tmp.png
+tmp

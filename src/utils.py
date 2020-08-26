@@ -8,6 +8,19 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 
+def save_img(fname, scene):
+    img = scene
+    H, W = 100, 100
+    img = img.view(H, W, 3)
+    img = torch.flip(img, (0,1))
+    print('done')
+
+    final_img = img.detach()
+    plt.imshow(final_img, interpolation='none',vmin = 0, vmax = 1)
+    plt.grid('off')
+    plt.savefig(fname)
+    return img
+    
 class maxVector3(torch.autograd.Function):
     @staticmethod
     def forward(ctx, input1, input2):
