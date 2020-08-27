@@ -20,6 +20,7 @@ class BasicRenderer:
     def __init__(self, source_scene, exp_dict):
         loss_fn = torch.nn.MSELoss(reduction='sum')
         self.source_scene = source_scene
+        self.source_start_scene = copy.deepcopy(source_scene)
         self.iteration = 0
 
     def train_on_batch(self, target_scene):
@@ -43,8 +44,11 @@ class BasicRenderer:
         H, W = 100, 100
         target_image = target_scene.get_scene_image().detach().view(H, W, 3).permute(2,0,1)
         pred_image = self.source_scene.get_scene_image().detach().view(H, W, 3).permute(2,0,1)
+        start_image = self.source_start_scene.get_scene_image().detach().view(H, W, 3).permute(2,0,1)
 
-        plt.imshow(make_grid([pred_image,target_image]).permute(1,2,0))
-        plt.title('left: prediction, right: target, (iter: %d)' % self.iteration)
-        plt.savefig('tmp.png')
+        plt.imshow(make_grid([start_image, 
+                    pred_image,
+                    target_image]).permute(1,2,0))
+        plt.title('left: initial scene, center: prediction, right: target, (iter: %d)' % self.iteration)
+        plt.savefig(fname)
         
