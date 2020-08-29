@@ -6,10 +6,16 @@ import pandas as pd
 from src import scenes
 from src import models
 
+from haven import haven_utils as hu
+import os, pprint
 
 
 
 def trainval(exp_dict):
+    pprint.pprint(exp_dict)
+
+    savedir_base = os.path.join('tmp', hu.hash_dict(exp_dict))
+    os.makedirs(savedir_base, exist_ok=True)
     # -- get scenes
     source_scene = scenes.get_scene(exp_dict['source_scene'])
     target_scene = scenes.get_scene(exp_dict['target_scene'])
@@ -23,6 +29,7 @@ def trainval(exp_dict):
         # update parameters and get new score_dict
         score_dict = model.train_on_batch(target_scene)
         score_dict["epoch"] = e
+        score_dict["step_size"] = model.opt.state['step_size']
 
         # Add to score_list and save checkpoint
         score_list += [score_dict]
@@ -33,10 +40,12 @@ def trainval(exp_dict):
 
         # Visualize
         if e % 50 == 0:
-            model.vis_on_batch(target_scene, fname='results/output_%d.png' % e)
+            model.vis_on_batch(target_scene, 
+                    fname=os.path.join(savedir_base, 
+                            'output_%d.png' % e))
 
-    save_gif(src_path="/mnt/home/projects/diff_rendering/results/*.png", 
-             tgt_fname="/mnt/home/projects/diff_rendering/results/animation.gif")
+    save_gif(src_path=os.path.join(savedir_base, '*.png'), 
+             tgt_fname=s.path.join(savedir_base, 'animation.gif'))
 
 
 def save_gif(src_path, tgt_fname):

@@ -3,6 +3,7 @@ import copy
 import pylab as plt 
 import torch
 from torchvision.utils import make_grid
+from src import optim 
 
 def get_model(model_dict, source_scene, exp_dict):
     # -- define renderer
@@ -13,6 +14,10 @@ def get_model(model_dict, source_scene, exp_dict):
     if model_dict['opt'] == 'adam':
         model.opt = torch.optim.Adam([source_scene.short_block_pos], 
                                       lr=model_dict['lr'])
+    if model_dict['opt'] == 'sps':
+        model.opt = optim.Sps([source_scene.short_block_pos], 
+                            #    lr=model_dict['lr']
+                               )
 
     return model
 
@@ -22,6 +27,7 @@ class BasicRenderer:
         self.source_scene = source_scene
         self.source_start_scene = copy.deepcopy(source_scene)
         self.iteration = 0
+        self.exp_dict = exp_dict
 
     def train_on_batch(self, target_scene):
         # get scene images
@@ -29,11 +35,16 @@ class BasicRenderer:
         pred_image = self.source_scene.get_scene_image()
 
         # fompute and print loss.
-        loss = torch.nn.MSELoss(reduction='sum')(pred_image, target_image)
+        loss = torch.nn.MSELoss(reduction='sum')(pred_image, target_image) 
+
 
         self.opt.zero_grad()
-        loss.backward()
-        self.opt.step()
+        if self.exp_dict['model']['opt'] == 'sps':
+            loss.backward()
+            self.opt.step(loss=loss)
+        else:
+            loss.backward()
+            self.opt.step()
 
         self.iteration += 1
 
