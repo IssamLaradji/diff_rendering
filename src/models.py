@@ -50,5 +50,6 @@ class BasicRenderer:
                     pred_image,
                     target_image]).permute(1,2,0))
         plt.title('left: initial scene, center: prediction, right: target, (iter: %d)' % self.iteration)
-        plt.savefig(fname)
+        plt.savefig(fname, pad_inches=0, 
+                    bbox_inches='tight')
         
