@@ -19,7 +19,7 @@ def trainval(exp_dict):
 
     # -- train for E iterations
     score_list = []
-    for e in range(300):
+    for e in range(500):
         # update parameters and get new score_dict
         score_dict = model.train_on_batch(target_scene)
         score_dict["epoch"] = e
@@ -32,8 +32,20 @@ def trainval(exp_dict):
         print("\n", score_df.tail(), "\n")
 
         # Visualize
-        model.vis_on_batch(target_scene, fname='results/output.png')
+        if e % 50 == 0:
+            model.vis_on_batch(target_scene, fname='results/output_%d.png' % e)
 
+    save_gif(src_path="/mnt/home/projects/diff_rendering/results/*.png", 
+             tgt_fname="/mnt/home/projects/diff_rendering/results/animation.gif")
+
+
+def save_gif(src_path, tgt_fname):
+    import glob
+    from PIL import Image
+
+    img, *imgs = [Image.open(f) for f in sorted(glob.glob(src_path))]
+    img.save(fp=tgt_fname, format='GIF', append_images=imgs,
+            save_all=True, duration=200, loop=0)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
